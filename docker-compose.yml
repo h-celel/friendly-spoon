@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "50051:50051"
+      - "50052:50052"
+    environment:
+      - EXTERNAL_GRPC_HOST=:50051
+      - INTERNAL_GRPC_HOST=:50052
+  envoy:
+    build:
+      context: ./envoy
+      dockerfile: envoy.Dockerfile
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    links:
+      - app
+    depends_on:
+      - app
