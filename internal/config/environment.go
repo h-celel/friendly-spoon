@@ -28,6 +28,7 @@ func NewEnvironment() *Environment {
 		PostgresSslMode:  "disable",
 		HealthcheckPort:  DefaultHealthcheckPort,
 		GRPCExternalHost: DefaultExternalGRPCHost,
+		GRPCInternalHost: DefaultInternalGRPCHost,
 		DBSchemaURL:      DefaultDBSchemaURL,
 	}
 	err := mapenv.Decode(env)

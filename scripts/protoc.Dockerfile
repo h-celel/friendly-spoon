@@ -12,4 +12,5 @@ RUN export PATH="$PATH:$HOME/.local/bin"
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-CMD $HOME/.local/bin/protoc --proto_path=/input --go_opt=paths=source_relative --go_out=/output --go-grpc_opt=paths=source_relative --go-grpc_out=/output /input/**/*.proto --experimental_allow_proto3_optional
+CMD $HOME/.local/bin/protoc --proto_path=/input --go_opt=paths=source_relative --go_out=/output --go-grpc_opt=paths=source_relative --go-grpc_out=/output -I /input/ $(find /input/ -iname "*.proto") --experimental_allow_proto3_optional && chmod -R 777 /output
+
