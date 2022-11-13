@@ -5,15 +5,20 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "50051:50051"
-      - "50052:50052"
+      - "${REST_PORT}:${REST_PORT}"
+      - "${EXTERNAL_GRPC_HOST}:${EXTERNAL_GRPC_HOST}"
+      - "${INTERNAL_GRPC_HOST}:${INTERNAL_GRPC_HOST}"
     environment:
-      - EXTERNAL_GRPC_HOST=:50051
-      - INTERNAL_GRPC_HOST=:50052
-    depends_on:
-      - fusionauth
-    networks:
-      - fusionauth_net
+      EXTERNAL_GRPC_HOST: ${EXTERNAL_GRPC_HOST}
+      INTERNAL_GRPC_HOST: ${INTERNAL_GRPC_HOST}
+      REST_PORT: ${REST_PORT}
+      HEALTHCHECK_PORT: ${HEALTHCHECK_PORT}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail http://localhost:${HEALTHCHECK_PORT}/status || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   envoy:
     build:
       context: ./envoy
@@ -25,68 +30,3 @@ services:
       - app
     depends_on:
       - app
-
-  fusionauth:
-    image: fusionauth/fusionauth-app:1.41.0
-    depends_on:
-      - postgres
-      - elasticsearch
-    environment:
-      DATABASE_URL: jdbc:postgresql://postgres:5432/fusionauth
-      DATABASE_ROOT_USERNAME: ${POSTGRES_USER}
-      DATABASE_ROOT_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      FUSIONAUTH_APP_MEMORY: ${FUSIONAUTH_APP_MEMORY}
-      FUSIONAUTH_APP_RUNTIME_MODE: development
-      FUSIONAUTH_APP_URL: http://fusionauth:9011
-      SEARCH_SERVERS: http://elasticsearch:9200
-      SEARCH_TYPE: elasticsearch
-    networks:
-      - postgres_net
-      - elasticsearch_net
-      - fusionauth_net
-    restart: unless-stopped
-    ports:
-      - "9011:9011"
-  postgres:
-    image: postgres:12-alpine
-    environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - postgres_net
-    restart: unless-stopped
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    environment:
-      cluster.name: fusionauth
-      bootstrap.memory_lock: "true"
-      discovery.type: single-node
-      ES_JAVA_OPTS: ${ES_JAVA_OPTS}
-    healthcheck:
-      test: [ "CMD", "curl",  "--fail" ,"--write-out", "'HTTP %{http_code}'", "--silent", "--output", "/dev/null", "http://localhost:9200/" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - elasticsearch_net
-    restart: unless-stopped
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-
-networks:
-  postgres_net:
-    driver: bridge
-  elasticsearch_net:
-    driver: bridge
-  fusionauth_net:
-    driver: bridge

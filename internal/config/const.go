@@ -1,12 +1,18 @@
 package config
 
+import "time"
+
 const (
 	AppName string = "friendly-spoon"
 
-	DefaultHealthcheckPort uint = 8080
+	DefaultRESTPort        uint = 8080
+	DefaultHealthcheckPort uint = 8081
 
-	DefaultExternalGRPCHost string = ":50051"
-	DefaultInternalGRPCHost string = ":50052"
+	DefaultExternalGRPCPort uint = 50051
+	DefaultInternalGRPCPort uint = 50052
 
 	DefaultDBSchemaURL string = "file://sql"
+
+	SessionsSecret   string        = "some-secret"
+	SessionsLifetime time.Duration = 15 * time.Minute
 )

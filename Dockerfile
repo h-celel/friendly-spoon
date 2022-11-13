@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine AS build_base
+FROM golang:1.19-bullseye AS build_base
 
 RUN apk add --no-cache git
 
@@ -14,11 +14,11 @@ COPY . .
 RUN go build -o ./out/scaling-spoon ./cmd/friendly-spoon
 
 
-FROM alpine
+FROM debian:bullseye
 
 COPY --from=build_base /tmp/friendly-spoon/out/friendly-spoon /app/friendly-spoon
 
-# COPY --from=build_base /tmp/scaling-spoon/sql /sql
+COPY --from=build_base /tmp/friendly-spoon/sql /sql
 
 ENV GODEBUG madvdontneed=1
 

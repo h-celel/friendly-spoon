@@ -3,35 +3,27 @@ package config
 import "github.com/h-celel/mapenv"
 
 type Environment struct {
-	PostgresUser     string `mpe:"POSTGRES_USER"`
-	PostgresPassword string `mpe:"POSTGRES_PASSWORD"`
-	PostgresHost     string `mpe:"POSTGRES_HOST"`
-	PostgresPort     uint   `mpe:"POSTGRES_PORT"`
-	PostgresDB       string `mpe:"POSTGRES_DB"`
-	PostgresSslMode  string `mpe:"POSTGRES_SSL_MODE"`
-	RabbitmqHost     string `mpe:"RABBITMQ_HOST"`
-	RabbitmqUser     string `mpe:"RABBITMQ_USER"`
-	RabbitmqPassword string `mpe:"RABBITMQ_PASSWORD"`
+	Auth0ClientID     string `mpe:"AUTH0_CLIENT_ID"`
+	Auth0Domain       string `mpe:"AUTH0_DOMAIN"`
+	Auth0ClientSecret string `mpe:"AUTH0_CLIENT_SECRET"`
+	Auth0CallbackURL  string `mpe:"AUTH0_CALLBACK_URL"`
+
+	RESTPort         uint   `mpe:"REST_PORT"`
 	HealthcheckPort  uint   `mpe:"HEALTHCHECK_PORT"`
-	GRPCExternalHost string `mpe:"GRPC_EXTERNAL_HOST"`
-	GRPCInternalHost string `mpe:"GRPC_INTERNAL_HOST"`
+	GRPCExternalPort uint   `mpe:"GRPC_EXTERNAL_PORT"`
+	GRPCInternalPort uint   `mpe:"GRPC_INTERNAL_PORT"`
 	DBSchemaURL      string `mpe:"DB_SCHEMA_URL"`
 }
 
-func NewEnvironment() *Environment {
-	env := &Environment{
-		PostgresUser:     "postgres",
-		PostgresPassword: "password",
-		PostgresDB:       "postgres",
-		PostgresHost:     "localhost",
-		PostgresPort:     5432,
-		PostgresSslMode:  "disable",
+func NewEnvironment() Environment {
+	env := Environment{
+		RESTPort:         DefaultRESTPort,
 		HealthcheckPort:  DefaultHealthcheckPort,
-		GRPCExternalHost: DefaultExternalGRPCHost,
-		GRPCInternalHost: DefaultInternalGRPCHost,
+		GRPCExternalPort: DefaultExternalGRPCPort,
+		GRPCInternalPort: DefaultInternalGRPCPort,
 		DBSchemaURL:      DefaultDBSchemaURL,
 	}
-	err := mapenv.Decode(env)
+	err := mapenv.Decode(&env)
 	if err != nil {
 		panic(err)
 	}
