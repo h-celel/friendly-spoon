@@ -18,6 +18,33 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    depends_on:
+      - redis
+    links:
+      - redis
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./gateway.Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_HOST_PORT}:${GATEWAY_HOST_PORT}"
+    environment:
+      GATEWAY_HOST_PORT: ${GATEWAY_HOST_PORT}
+      GATEWAY_TARGET_URL: https://host.docker.internal:50051
+      HEALTHCHECK_PORT: ${HEALTHCHECK_PORT}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail http://localhost:${HEALTHCHECK_PORT}/status || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - redis
+    links:
+      - redis
 
   envoy:
     build:
@@ -27,6 +54,9 @@ services:
     ports:
       - "9000:9000"
     links:
-      - app
+      - gateway
     depends_on:
-      - app
+      - gateway
+
+  redis:
+    image: redis:7-alpine

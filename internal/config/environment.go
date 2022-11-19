@@ -13,6 +13,9 @@ type Environment struct {
 	GRPCExternalPort uint   `mpe:"GRPC_EXTERNAL_PORT"`
 	GRPCInternalPort uint   `mpe:"GRPC_INTERNAL_PORT"`
 	DBSchemaURL      string `mpe:"DB_SCHEMA_URL"`
+
+	GatewayHostPort  uint   `mpe:"GATEWAY_HOST_PORT"`
+	GatewayTargetURL string `mpe:"GATEWAY_TARGET_URL"`
 }
 
 func NewEnvironment() Environment {

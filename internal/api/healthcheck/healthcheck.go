@@ -14,7 +14,6 @@ func Init(_ context.Context, cancel context.CancelFunc, env config.Environment) 
 
 	mux.Handle("/status", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = fmt.Fprintf(w, "%s - time: '%v'", config.AppName, time.Now())
-		w.WriteHeader(http.StatusOK)
 	}))
 
 	go func() {

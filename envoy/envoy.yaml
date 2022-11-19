@@ -23,7 +23,7 @@ static_resources:
                       routes:
                         - match: { prefix: "/" }
                           route:
-                            cluster: scaling_spoon_service
+                            cluster: gateway_service
                             timeout: 0s
                             max_stream_duration:
                               grpc_timeout_header_max: 0s
@@ -45,7 +45,7 @@ static_resources:
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
   clusters:
-    - name: scaling_spoon_service
+    - name: gateway_service
       connect_timeout: 0.25s
       type: logical_dns
       http2_protocol_options: {}
@@ -57,5 +57,5 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: app
-                      port_value: 50051
+                      address: gateway
+                      port_value: 8080

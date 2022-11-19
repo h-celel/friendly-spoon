@@ -2,10 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/golangcollege/sessions"
 	"github.com/h-celel/friendly-spoon/internal/api/healthcheck"
-	"github.com/h-celel/friendly-spoon/internal/api/rest"
 	"github.com/h-celel/friendly-spoon/internal/config"
+	"github.com/h-celel/friendly-spoon/internal/reverseproxy"
 	"log"
 	"os"
 	"os/signal"
@@ -16,16 +15,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	catchShutdown(cancel)
 	env := config.NewEnvironment()
-	log.Println("starting app...")
+	log.Println("starting gateway...")
 
-	session := sessions.New([]byte(config.SessionsSecret))
-	session.Lifetime = config.SessionsLifetime
-
-	rest.Init(ctx, cancel, env, session)
+	reverseproxy.Init(ctx, cancel, env)
 	healthcheck.Init(ctx, cancel, env)
 
 	<-ctx.Done()
-	log.Println("closing app")
 }
 
 func catchShutdown(cancel context.CancelFunc) {
