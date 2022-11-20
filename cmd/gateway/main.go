@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"github.com/h-celel/friendly-spoon/internal/api/healthcheck"
+	"github.com/h-celel/friendly-spoon/internal/api/reverseproxy"
 	"github.com/h-celel/friendly-spoon/internal/config"
-	"github.com/h-celel/friendly-spoon/internal/reverseproxy"
+	"github.com/h-celel/sessions"
 	"log"
 	"os"
 	"os/signal"
@@ -17,10 +19,15 @@ func main() {
 	env := config.NewEnvironment()
 	log.Println("starting gateway...")
 
-	reverseproxy.Init(ctx, cancel, env)
+	key, _ := base64.StdEncoding.DecodeString(config.SessionsSecret)
+	session := sessions.New(key)
+	session.Lifetime = config.SessionsLifetime
+
+	reverseproxy.Init(ctx, cancel, env, session)
 	healthcheck.Init(ctx, cancel, env)
 
 	<-ctx.Done()
+	log.Println("closing gateway")
 }
 
 func catchShutdown(cancel context.CancelFunc) {

@@ -13,6 +13,6 @@ const (
 
 	DefaultDBSchemaURL string = "file://sql"
 
-	SessionsSecret   string        = "some-secret"
-	SessionsLifetime time.Duration = 15 * time.Minute
+	SessionsSecret   string        = "sf7+lSLzlDktkUBII2LkNTf1J3Xt6UtvP7goWhkoLNV4=" //todo: move to env
+	SessionsLifetime time.Duration = 60 * time.Minute
 )

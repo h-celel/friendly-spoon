@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/h-celel/friendly-spoon/internal/config"
+	"github.com/h-celel/sessions"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"net"
@@ -13,7 +14,7 @@ import (
 	"net/url"
 )
 
-func Init(_ context.Context, cancel context.CancelFunc, env config.Environment) {
+func Init(_ context.Context, cancel context.CancelFunc, env config.Environment, sessions *sessions.Session) {
 	targetUrl, err := url.Parse(env.GatewayTargetURL)
 	if err != nil {
 		fmt.Println(err)
@@ -30,11 +31,18 @@ func Init(_ context.Context, cancel context.CancelFunc, env config.Environment) 
 	}
 
 	h2s := &http2.Server{}
+	h2handler := h2c.NewHandler(sessions.Enable(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if len(r.Header.Get("Authorization")) == 0 {
+			if accessToken := sessions.GetString(r, "access_token"); len(accessToken) > 0 {
+				r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+			}
+		}
+		proxy.ServeHTTP(w, r)
+	})), h2s)
+
 	server := &http.Server{
-		Addr: fmt.Sprintf(":%d", env.GatewayHostPort),
-		Handler: h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			proxy.ServeHTTP(w, r)
-		}), h2s),
+		Addr:    fmt.Sprintf(":%d", env.GatewayHostPort),
+		Handler: h2handler,
 	}
 
 	go func() {

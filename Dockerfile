@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o ./out/scaling-spoon ./cmd/friendly-spoon
+RUN go build -o ./out/friendly-spoon ./cmd/friendly-spoon
 
 
 FROM debian:bullseye

@@ -19,6 +19,8 @@ func (h *handler) logoutHandler(w http.ResponseWriter, r *http.Request) {
 		scheme = "https"
 	}
 
+	h.sessions.Destroy(r)
+
 	returnTo, err := url.Parse(scheme + "://" + r.Host)
 	if err != nil {
 		log.Println(err)

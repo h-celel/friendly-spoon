@@ -58,4 +58,4 @@ static_resources:
                   address:
                     socket_address:
                       address: gateway
-                      port_value: 8080
+                      port_value: 8082

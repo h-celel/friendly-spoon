@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/golangcollege/sessions"
+	"encoding/base64"
 	"github.com/h-celel/friendly-spoon/internal/api/healthcheck"
 	"github.com/h-celel/friendly-spoon/internal/api/rest"
 	"github.com/h-celel/friendly-spoon/internal/config"
+	"github.com/h-celel/sessions"
 	"log"
 	"os"
 	"os/signal"
@@ -18,7 +19,8 @@ func main() {
 	env := config.NewEnvironment()
 	log.Println("starting app...")
 
-	session := sessions.New([]byte(config.SessionsSecret))
+	key, _ := base64.StdEncoding.DecodeString(config.SessionsSecret)
+	session := sessions.New(key)
 	session.Lifetime = config.SessionsLifetime
 
 	rest.Init(ctx, cancel, env, session)
