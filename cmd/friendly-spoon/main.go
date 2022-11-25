@@ -3,14 +3,16 @@ package main
 import (
 	"context"
 	"encoding/base64"
-	"github.com/h-celel/friendly-spoon/internal/api/healthcheck"
-	"github.com/h-celel/friendly-spoon/internal/api/rest"
-	"github.com/h-celel/friendly-spoon/internal/config"
-	"github.com/h-celel/sessions"
+	"github.com/h-celel/friendly-spoon/internal/api/publickey"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/h-celel/friendly-spoon/internal/api/healthcheck"
+	"github.com/h-celel/friendly-spoon/internal/api/rest"
+	"github.com/h-celel/friendly-spoon/internal/config"
+	"github.com/h-celel/sessions"
 )
 
 func main() {
@@ -23,6 +25,7 @@ func main() {
 	session := sessions.New(key)
 	session.Lifetime = config.SessionsLifetime
 
+	publickey.Init(ctx, cancel, env)
 	rest.Init(ctx, cancel, env, session)
 	healthcheck.Init(ctx, cancel, env)
 
